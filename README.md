@@ -1,0 +1,2 @@
+# Litmus Chaos Experiment templates for CI
+Litmus CI Lib contains different go tests for running a number of litmus chaos experiment that can be further used at remote places. The templates can also be used in Litmus Github Actions and Gitlab Remote templates for running chaos experiments against the application pod to check the behavior of application pod under different chaos scenarios.
