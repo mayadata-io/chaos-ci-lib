@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -y git && \
     apt-get install -y ssh && \
     apt install ssh rsync
 
+ENV CGO_ENABLED 0
+ENV GO111MODULE=on
 RUN export GOPATH=$HOME/go
 RUN export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 ARG KUBECTL_VERSION=1.17.0
@@ -12,7 +14,6 @@ ARG KUBECTL_VERSION=1.17.0
 RUN apt-get update && apt-get install -y python-pip && \
     pip install --upgrade pip && \
     pip install --upgrade setuptools
-
 
 RUN apt-get update -y \
     && apt-get install -y \
@@ -30,3 +31,4 @@ COPY types ./types
 COPY go.mod ./go.mod
 COPY go.sum ./go.sum
 COPY vendor/ ./vendor
+COPY app ./app
