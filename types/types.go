@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"flag"
 	"os"
 
 	"github.com/litmuschaos/chaos-operator/pkg/apis/litmuschaos/v1alpha1"
@@ -9,9 +8,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-
-	"k8s.io/client-go/rest"
 )
 
 var (
@@ -112,22 +108,4 @@ type PodDetails struct {
 	PodNamespace string
 	PodLabel     string
 	PodKind      string
-}
-
-// GetKubeConfig setup the config for access cluster resource
-func GetKubeConfig() (*rest.Config, error) {
-	Kubeconfig := flag.String("kubeconfig", os.Getenv("HOME")+"/.kube/config", "absolute path to the kubeconfig file")
-	flag.Parse()
-	// Use in-cluster config if kubeconfig path is specified
-	if *Kubeconfig == "" {
-		Config, err := rest.InClusterConfig()
-		if err != nil {
-			return Config, err
-		}
-	}
-	Config, err := clientcmd.BuildConfigFromFlags("", *Kubeconfig)
-	if err != nil {
-		return Config, err
-	}
-	return Config, err
 }

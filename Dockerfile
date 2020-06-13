@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y python-pip && \
     pip install --upgrade pip && \
     pip install --upgrade setuptools
 
+RUN git clone https://github.com/helm/helm.git &&\
+    cd helm && make
+    
 RUN apt-get update -y \
     && apt-get install -y \
     python3 \

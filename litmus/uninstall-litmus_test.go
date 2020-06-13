@@ -1,10 +1,13 @@
-package tests
+package litmus
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
 	"testing"
 
+	"github.com/litmuschaos/chaos-operator/pkg/apis/litmuschaos/v1alpha1"
+	chaosClient "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 	"github.com/mayadata-io/chaos-ci-lib/pkg"
 	chaosTypes "github.com/mayadata-io/chaos-ci-lib/types"
 	. "github.com/onsi/ginkgo"
@@ -13,9 +16,6 @@ import (
 	scheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/klog"
-
-	"github.com/litmuschaos/chaos-operator/pkg/apis/litmuschaos/v1alpha1"
-	chaosClient "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 )
 
 func TestUninstallLitmus(t *testing.T) {
@@ -23,28 +23,6 @@ func TestUninstallLitmus(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "BDD test")
 }
-
-var _ = BeforeSuite(func() {
-	var err error
-
-	chaosTypes.Config, err = chaosTypes.GetKubeConfig()
-	if err != nil {
-		Expect(err).To(BeNil(), "Failed to get kubeconfig client")
-	}
-	chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
-	if err != nil {
-		Expect(err).To(BeNil(), "failed to get client")
-	}
-	chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
-	if err != nil {
-		Expect(err).To(BeNil(), "failed to get clientSet")
-	}
-	err = v1alpha1.AddToScheme(scheme.Scheme)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-})
 
 //BDD Tests to delete litmus
 var _ = Describe("BDD of Litmus cleanup", func() {
@@ -55,6 +33,25 @@ var _ = Describe("BDD of Litmus cleanup", func() {
 		It("Should check for deletion of Litmus", func() {
 
 			var err error
+			var out bytes.Buffer
+			var stderr bytes.Buffer
+			//Prerequisite of the test
+			chaosTypes.Config, err = pkg.GetKubeConfig()
+			if err != nil {
+				Expect(err).To(BeNil(), "Failed to get kubeconfig client")
+			}
+			chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
+			if err != nil {
+				Expect(err).To(BeNil(), "failed to get client")
+			}
+			chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
+			if err != nil {
+				Expect(err).To(BeNil(), "failed to get clientSet")
+			}
+			err = v1alpha1.AddToScheme(scheme.Scheme)
+			if err != nil {
+				fmt.Println(err)
+			}
 			//Deleting all chaosengines
 			By("Deleting all chaosengine")
 			err = exec.Command("kubectl", "delete", "chaosengine", "-n", pkg.GetEnv("APP_NS", "default"), "--all").Run()
@@ -62,10 +59,17 @@ var _ = Describe("BDD of Litmus cleanup", func() {
 			klog.Info("All chaosengine deleted successfully")
 
 			//Deleting all chaosexperiment
-			By("Deleting all chaosexperiment")
-			err = exec.Command("kubectl", "delete", "chaosexperiment", "-n", pkg.GetEnv("APP_NS", "default"), "--all").Run()
-			Expect(err).To(BeNil(), "Failed to delete chaosexperiment")
-			klog.Info("All chaosexperiment deleted successfully")
+			klog.Info("Deleting all chaos experiment from helm uninstall")
+			helmUninstall := exec.Command("helm", "uninstall", "k8s", "--namespace", pkg.GetEnv("APP_NS", "default"))
+			helmUninstall.Stdout = &out
+			helmUninstall.Stderr = &stderr
+			err = helmUninstall.Run()
+			if err != nil {
+				fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+				fmt.Println(err)
+				Fail("Fail to uninstall litmus chaosexperiments through helm charts")
+			}
+			fmt.Println("Result: " + out.String())
 
 			//Deleting all chaosresults
 			By("Deleting all chaosresults")

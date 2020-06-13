@@ -1,4 +1,4 @@
-package tests
+package litmus
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/litmuschaos/chaos-operator/pkg/apis/litmuschaos/v1alpha1"
+	chaosClient "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 	"github.com/mayadata-io/chaos-ci-lib/pkg"
 	chaosTypes "github.com/mayadata-io/chaos-ci-lib/types"
 	. "github.com/onsi/ginkgo"
@@ -16,9 +18,6 @@ import (
 	scheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/klog"
-
-	"github.com/litmuschaos/chaos-operator/pkg/apis/litmuschaos/v1alpha1"
-	chaosClient "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 )
 
 var (
@@ -32,28 +31,6 @@ func TestInstallLitmus(t *testing.T) {
 	RunSpecs(t, "BDD test")
 }
 
-var _ = BeforeSuite(func() {
-	var err error
-
-	chaosTypes.Config, err = chaosTypes.GetKubeConfig()
-	if err != nil {
-		Expect(err).To(BeNil(), "Failed to get kubeconfig client")
-	}
-	chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
-	if err != nil {
-		Expect(err).To(BeNil(), "failed to get client")
-	}
-	chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
-	if err != nil {
-		Expect(err).To(BeNil(), "failed to get clientSet")
-	}
-	err = v1alpha1.AddToScheme(scheme.Scheme)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-})
-
 //BDD Tests to Install Litmus
 var _ = Describe("BDD of Litmus installation", func() {
 
@@ -65,6 +42,23 @@ var _ = Describe("BDD of Litmus installation", func() {
 			//Installing Litmus
 			By("Installing Litmus")
 			var err error
+			//Prerequisite of the test
+			chaosTypes.Config, err = pkg.GetKubeConfig()
+			if err != nil {
+				Expect(err).To(BeNil(), "Failed to get kubeconfig client")
+			}
+			chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
+			if err != nil {
+				Expect(err).To(BeNil(), "failed to get client")
+			}
+			chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
+			if err != nil {
+				Expect(err).To(BeNil(), "failed to get clientSet")
+			}
+			err = v1alpha1.AddToScheme(scheme.Scheme)
+			if err != nil {
+				fmt.Println(err)
+			}
 			klog.Info("Installing Litmus")
 			err = pkg.DownloadFile("install-litmus.yaml", chaosTypes.InstallLitmus)
 			Expect(err).To(BeNil(), "fail to fetch operator yaml file to install litmus")
@@ -100,6 +94,18 @@ var _ = Describe("BDD of Litmus installation", func() {
 			}
 			klog.Info("Chaos Operator created successfully")
 			klog.Info("Litmus installed successfully")
+			klog.Info("Installing all chaos experiment from helm install")
+			helmInstall := exec.Command("bash", "../helm-install.sh")
+			helmInstall.Stdout = &out
+			helmInstall.Stderr = &stderr
+			err = helmInstall.Run()
+			if err != nil {
+				fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+				fmt.Println(err)
+				Fail("Fail to install litmus chaosexperiments through helm charts")
+			}
+			fmt.Println("Result: " + out.String())
+
 		})
 	})
 

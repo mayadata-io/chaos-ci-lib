@@ -25,28 +25,6 @@ func TestDiskFill(t *testing.T) {
 	RunSpecs(t, "BDD test")
 }
 
-var _ = BeforeSuite(func() {
-	var err error
-
-	chaosTypes.Config, err = chaosTypes.GetKubeConfig()
-	if err != nil {
-		Expect(err).To(BeNil(), "Failed to get kubeconfig client")
-	}
-	chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
-	if err != nil {
-		Expect(err).To(BeNil(), "failed to get client")
-	}
-	chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
-	if err != nil {
-		Expect(err).To(BeNil(), "failed to get clientSet")
-	}
-	err = v1alpha1.AddToScheme(scheme.Scheme)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-})
-
 //BDD Tests for disk-fill experiment
 var _ = Describe("BDD of disk-fill experiment", func() {
 
@@ -58,20 +36,27 @@ var _ = Describe("BDD of disk-fill experiment", func() {
 			var err error
 			var experimentName = "disk-fill"
 			var engineName = "engine10"
+			//Prerequisite of the test
+			chaosTypes.Config, err = pkg.GetKubeConfig()
+			if err != nil {
+				Expect(err).To(BeNil(), "Failed to get kubeconfig client")
+			}
+			chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
+			if err != nil {
+				Expect(err).To(BeNil(), "failed to get client")
+			}
+			chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
+			if err != nil {
+				Expect(err).To(BeNil(), "failed to get clientSet")
+			}
+			err = v1alpha1.AddToScheme(scheme.Scheme)
+			if err != nil {
+				fmt.Println(err)
+			}
 			//Installing RBAC for the experiment
 			err = pkg.InstallRbac(chaosTypes.DiskFillRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
-
-			//Creating Chaos-Experiment
-			By("Creating Experiment")
-			err = pkg.DownloadFile(experimentName+".yaml", chaosTypes.DiskFillExperimentPath)
-			Expect(err).To(BeNil(), "fail to fetch chaos experiment file")
-			err = pkg.EditFile(experimentName+".yaml", "image: \"litmuschaos/ansible-runner:latest\"", "image: "+pkg.GetEnv("EXPERIMENT_IMAGE", "litmuschaos/ansible-runner:latest"))
-			Expect(err).To(BeNil(), "Failed to update the experiment image")
-			err = exec.Command("kubectl", "apply", "-f", experimentName+".yaml", "-n", pkg.GetEnv("APP_NS", "default")).Run()
-			Expect(err).To(BeNil(), "fail to create chaos experiment")
-			klog.Info("Chaos Experiment Created Successfully")
 
 			//Installing chaos engine for the experiment
 			//Fetching engine file
@@ -92,6 +77,8 @@ var _ = Describe("BDD of disk-fill experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update AnnotationCheck in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "applabel: 'app=nginx'", "applabel: '"+pkg.GetEnv("APP_LABEL", "run=nginx")+"'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
+			err = pkg.EditFile(experimentName+"-ce.yaml", "name: disk-fill", "name: k8s-disk-fill")
+			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "FILL_PERCENTAGE", "value: '80'", "value: '"+pkg.GetEnv("FILL_PERCENTAGE", "80")+"'")
 			Expect(err).To(BeNil(), "Failed to update the disk fill percentage")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TARGET_CONTAINER", "value: 'nginx'", "value: '"+pkg.GetEnv("TARGET_CONTAINER", "nginx")+"'")
