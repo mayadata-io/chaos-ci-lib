@@ -95,7 +95,7 @@ var _ = Describe("BDD of Litmus installation", func() {
 			klog.Info("Chaos Operator created successfully")
 			klog.Info("Litmus installed successfully")
 			klog.Info("Installing all chaos experiment from helm install")
-			helmInstall := exec.Command("bash", "../helm-install.sh")
+			helmInstall := exec.Command("bash", "helm-install.sh")
 			helmInstall.Stdout = &out
 			helmInstall.Stderr = &stderr
 			err = helmInstall.Run()

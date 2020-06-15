@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 #Provide default value of APP_NS
 APP_NS=${APP_NS:="default"}
 IMAGE_PULL_POLICY=${IMAGE_PULL_POLICY:="Always"}
