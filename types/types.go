@@ -70,7 +70,7 @@ var (
 	PodNetworkLossEnginePath       = "https://raw.githubusercontent.com/litmuschaos/chaos-charts/master/charts/generic/pod-network-loss/engine.yaml"
 
 	//InstallLitmus : Path to create operator
-	InstallLitmus = "https://raw.githubusercontent.com/litmuschaos/pages/master/docs/litmus-operator-latest.yaml"
+	InstallLitmus = "https://litmuschaos.github.io/litmus/litmus-operator-v1.6.1.yaml"
 	//LitmusCrd : Path to litmus crds
 	LitmusCrd = "https://raw.githubusercontent.com/litmuschaos/chaos-operator/master/deploy/chaos_crds.yaml"
 )
