@@ -17,7 +17,9 @@ addons:
 script:
   # Installing and configuring dependencies
   - make deps
-  # Build
+  # Create go binaries
+  - make go-build
+  # Create dockerfile
   - make build
 
 after_success:

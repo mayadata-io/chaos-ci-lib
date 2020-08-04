@@ -40,7 +40,7 @@ lint:
 	@go vet $(PACKAGES)
 
 .PHONY: deps
-deps: _build_check_docker godeps docker-build
+deps: _build_check_docker godeps
 
 _build_check_docker:
 	@if [ $(IS_DOCKER_INSTALLED) -eq 1 ]; \
@@ -55,12 +55,26 @@ godeps:
 	@go get -u -v golang.org/x/lint/golint
 	@go get -u -v golang.org/x/tools/cmd/goimports
 
+
+PHONY: build
+build: docker-build
+
 docker-build: 
 	@echo "----------------------------"
 	@echo "--> Build chaos-ci-lib image" 
 	@echo "----------------------------"
 	# Dockerfile available in the repo root
-	sudo docker build . -f Dockerfile -t $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	sudo docker build . -f build/Dockerfile -t $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+
+PHONY: go-build
+go-build: test-go-binary
+
+test-go-binary:
+	@echo "------------------------"
+	@echo "--> Build test go binary" 
+	@echo "------------------------"
+	@sh build/generate_go_binary
 
 .PHONY: security-checks
 security-checks: trivy-security-check
