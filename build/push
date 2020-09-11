@@ -3,7 +3,7 @@ set -e
 
 if [ -z "${REPONAME}" ]
 then
-  REPONAME="mayadata-io"
+  REPONAME="mayadataio"
 fi
 
 if [ -z "${IMGNAME}" ] || [ -z "${IMGTAG}" ];

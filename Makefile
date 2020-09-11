@@ -7,7 +7,7 @@ IS_DOCKER_INSTALLED = $(shell which docker >> /dev/null 2>&1; echo $$?)
 PACKAGES = $(shell go list ./... | grep -v '/vendor/')
 
 # docker info
-DOCKER_REPO ?= mayadata-io
+DOCKER_REPO ?= mayadataio
 DOCKER_IMAGE ?= chaos-ci-lib
 DOCKER_TAG ?= ci
 
@@ -86,4 +86,4 @@ docker-push:
 	@echo "---------------------------"
 	@echo "--> Push chaos-ci-lib image" 
 	@echo "---------------------------"
-	REPONAME="mayadata-io" IMGNAME="chaos-ci-lib" IMGTAG="ci" ./build/push
+	REPONAME="mayadataio" IMGNAME="chaos-ci-lib" IMGTAG="ci" ./build/push
