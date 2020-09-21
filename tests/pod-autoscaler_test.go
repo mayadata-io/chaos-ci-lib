@@ -54,14 +54,14 @@ var _ = Describe("BDD of pod-autoscaler experiment", func() {
 				fmt.Println(err)
 			}
 			//Installing RBAC for the experiment
-			err = pkg.InstallRbac(chaosTypes.PodCPUHogRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
+			err = pkg.InstallRbac(chaosTypes.PodAutoscalerRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
 
 			//Installing chaos engine for the experiment
 			//Fetching engine file
 			By("Fetching engine file for the experiment")
-			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodCPUHogEnginePath)
+			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodAutoscalerEnginePath)
 			Expect(err).To(BeNil(), "Fail to fetch engine file")
 
 			//Modify chaos engine spec

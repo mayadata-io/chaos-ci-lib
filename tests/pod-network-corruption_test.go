@@ -19,7 +19,7 @@ import (
 	"k8s.io/klog"
 )
 
-func testPodNetworkCorruption(t *testing.T) {
+func TestPodNetworkCorruption(t *testing.T) {
 
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "BDD test")

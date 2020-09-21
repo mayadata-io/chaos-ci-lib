@@ -54,14 +54,14 @@ var _ = Describe("BDD of pod-network-duplication experiment", func() {
 				fmt.Println(err)
 			}
 			//Installing RBAC for the experiment
-			err = pkg.InstallRbac(chaosTypes.PodNetworkLossRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
+			err = pkg.InstallRbac(chaosTypes.PodNetworkDuplicationRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
 
 			//Installing chaos engine for the experiment
 			//Fetching engine file
 			By("Fetching engine file for the experiment")
-			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodNetworkLossEnginePath)
+			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodNetworkDuplicationEnginePath)
 			Expect(err).To(BeNil(), "Fail to fetch engine file")
 
 			//Modify chaos engine spec

@@ -54,14 +54,14 @@ var _ = Describe("BDD of node-io-stress experiment", func() {
 				fmt.Println(err)
 			}
 			//Installing RBAC for the experiment
-			err = pkg.InstallRbac(chaosTypes.NodeMemoryHogRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
+			err = pkg.InstallRbac(chaosTypes.NodeIOStressRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
 
 			//Installing chaos engine for the experiment
 			//Fetching engine file
 			By("Fetching engine file for the experiment")
-			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.NodeMemoryHogEnginePath)
+			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.NodeIOStressEnginePath)
 			Expect(err).To(BeNil(), "Fail to fetch engine file")
 
 			//Modify chaos engine spec
