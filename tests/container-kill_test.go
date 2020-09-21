@@ -77,8 +77,6 @@ var _ = Describe("BDD of container-kill experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update AnnotationCheck in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "applabel: 'app=nginx'", "applabel: "+pkg.GetEnv("APP_LABEL", "run=nginx"))
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: container-kill", "name: k8s-container-kill")
-			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "jobCleanUpPolicy: 'delete'", "jobCleanUpPolicy: 'retain'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TARGET_CONTAINER", "value: 'nginx'", "value: '"+pkg.GetEnv("TARGET_CONTAINER", "nginx")+"'")

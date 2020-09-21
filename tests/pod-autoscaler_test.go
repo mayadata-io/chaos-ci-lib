@@ -19,14 +19,14 @@ import (
 	"k8s.io/klog"
 )
 
-func testPodNetworkCorruption(t *testing.T) {
+func TestPodAutoscaler(t *testing.T) {
 
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "BDD test")
 }
 
-//BDD Tests for pod-network-corruption experiment
-var _ = Describe("BDD of pod-network-corruption experiment", func() {
+//BDD Tests for pod-autoscaler experiment
+var _ = Describe("BDD of pod-autoscaler experiment", func() {
 
 	// BDD TEST CASE 1
 	Context("Check for Litmus components", func() {
@@ -34,8 +34,8 @@ var _ = Describe("BDD of pod-network-corruption experiment", func() {
 		It("Should check for creation of runner pod", func() {
 
 			var err error
-			var experimentName = "pod-network-corruption"
-			var engineName = "engine6"
+			var experimentName = "pod-autoscaler"
+			var engineName = "engine11"
 			//Prerequisite of the test
 			chaosTypes.Config, err = pkg.GetKubeConfig()
 			if err != nil {
@@ -54,39 +54,33 @@ var _ = Describe("BDD of pod-network-corruption experiment", func() {
 				fmt.Println(err)
 			}
 			//Installing RBAC for the experiment
-			err = pkg.InstallRbac(chaosTypes.PodNetworkCorruptionRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
+			err = pkg.InstallRbac(chaosTypes.PodCPUHogRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
 
 			//Installing chaos engine for the experiment
 			//Fetching engine file
 			By("Fetching engine file for the experiment")
-			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodNetworkCorruptionEnginePath)
+			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodCPUHogEnginePath)
 			Expect(err).To(BeNil(), "Fail to fetch engine file")
 
 			//Modify chaos engine spec
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: nginx-network-chaos", "name: "+engineName)
+			err = pkg.EditFile(experimentName+"-ce.yaml", "name: nginx-chaos", "name: "+engineName)
 			Expect(err).To(BeNil(), "Failed to update engine name in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "namespace: default", "namespace: "+pkg.GetEnv("APP_NS", "default"))
 			Expect(err).To(BeNil(), "Failed to update namespace in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "appns: 'default'", "appns: '"+pkg.GetEnv("APP_NS", "default")+"'")
 			Expect(err).To(BeNil(), "Failed to update application namespace in engine")
+			err = pkg.EditFile(experimentName+"-ce.yaml", "appkind: 'deployment'", "appkind: "+pkg.GetEnv("APP_KIND", "deployment"))
+			Expect(err).To(BeNil(), "Failed to update application kind in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "annotationCheck: 'true'", "annotationCheck: 'false'")
 			Expect(err).To(BeNil(), "Failed to update AnnotationCheck in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "applabel: 'app=nginx'", "applabel: '"+pkg.GetEnv("APP_LABEL", "run=nginx")+"'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "appkind: 'deployment'", "appkind: "+pkg.GetEnv("APP_KIND", "deployment"))
-			Expect(err).To(BeNil(), "Failed to update application kind in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "jobCleanUpPolicy: 'delete'", "jobCleanUpPolicy: 'retain'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TOTAL_CHAOS_DURATION", "value: '60'", "value: '"+pkg.GetEnv("TOTAL_CHAOS_DURATION", "60")+"'")
 			Expect(err).To(BeNil(), "Failed to update total chaos duration")
-			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "NETWORK_INTERFACE", "value: ''", "value: '"+pkg.GetEnv("NETWORK_INTERFACE", "eth0")+"'")
-			Expect(err).To(BeNil(), "Failed to update the network interface")
-			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TARGET_CONTAINER", "value: 'nginx'", "value: '"+pkg.GetEnv("TARGET_CONTAINER", "nginx")+"'")
-			Expect(err).To(BeNil(), "Failed to update the target container name")
-			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "CONTAINER_RUNTIME", "value: 'docker'", "value: '"+pkg.GetEnv("CONTAINER_RUNTIME", "docker")+"'")
-			Expect(err).To(BeNil(), "Fail to update the network runtime")
 
 			//Creating ChaosEngine
 			By("Creating ChaosEngine")

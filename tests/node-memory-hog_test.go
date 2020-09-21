@@ -77,7 +77,7 @@ var _ = Describe("BDD of node-memory-hog experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update AnnotationCheck in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "applabel: 'app=nginx'", "applabel: '"+pkg.GetEnv("APP_LABEL", "run=nginx")+"'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: node-memory-hog", "name: k8s-node-memory-hog")
+			err = pkg.EditFile(experimentName+"-ce.yaml", "name: node-memory-hog", "name: node-memory-hog")
 			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TOTAL_CHAOS_DURATION", "value: '30'", "value: '"+pkg.GetEnv("TOTAL_CHAOS_DURATION", "60")+"'")
 			Expect(err).To(BeNil(), "Failed to update total chaos duration")

@@ -75,8 +75,6 @@ var _ = Describe("BDD of node-cpu-hog experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update application kind in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "annotationCheck: 'true'", "annotationCheck: 'false'")
 			Expect(err).To(BeNil(), "Failed to update AnnotationCheck in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: node-cpu-hog", "name: k8s-node-cpu-hog")
-			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "applabel: 'app=nginx'", "applabel: '"+pkg.GetEnv("APP_LABEL", "run=nginx")+"'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "jobCleanUpPolicy: 'delete'", "jobCleanUpPolicy: 'retain'")

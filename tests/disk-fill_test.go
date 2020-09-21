@@ -77,8 +77,6 @@ var _ = Describe("BDD of disk-fill experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update AnnotationCheck in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "applabel: 'app=nginx'", "applabel: '"+pkg.GetEnv("APP_LABEL", "run=nginx")+"'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: disk-fill", "name: k8s-disk-fill")
-			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "FILL_PERCENTAGE", "value: '80'", "value: '"+pkg.GetEnv("FILL_PERCENTAGE", "80")+"'")
 			Expect(err).To(BeNil(), "Failed to update the disk fill percentage")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TARGET_CONTAINER", "value: 'nginx'", "value: '"+pkg.GetEnv("TARGET_CONTAINER", "nginx")+"'")

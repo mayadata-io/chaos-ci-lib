@@ -79,8 +79,6 @@ var _ = Describe("BDD of pod-memory-hog experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update application kind in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "jobCleanUpPolicy: 'delete'", "jobCleanUpPolicy: 'retain'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: pod-memory-hog", "name: k8s-pod-memory-hog")
-			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TOTAL_CHAOS_DURATION", "value: '30'", "value: '"+pkg.GetEnv("TOTAL_CHAOS_DURATION", "60")+"'")
 			Expect(err).To(BeNil(), "Failed to update total chaos duration")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "NODE_CPU_CORE", "value: ''", "value: '"+pkg.GetEnv("MEMORY_CONSUMPTION", "500")+"'")

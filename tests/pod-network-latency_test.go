@@ -79,9 +79,7 @@ var _ = Describe("BDD of pod-network-latency experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update application kind in engine")
 			err = pkg.EditFile(experimentName+"-ce.yaml", "jobCleanUpPolicy: 'delete'", "jobCleanUpPolicy: 'retain'")
 			Expect(err).To(BeNil(), "Failed to update application label in engine")
-			err = pkg.EditFile(experimentName+"-ce.yaml", "name: pod-network-latency", "name: k8s-pod-network-latency")
-			Expect(err).To(BeNil(), "Failed to update the chaosexperiment name")
-			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TOTAL_CHAOS_DURATION", "value: '30'", "value: '"+pkg.GetEnv("TOTAL_CHAOS_DURATION", "60")+"'")
+			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TOTAL_CHAOS_DURATION", "value: '60'", "value: '"+pkg.GetEnv("TOTAL_CHAOS_DURATION", "60")+"'")
 			Expect(err).To(BeNil(), "Failed to update total chaos duration")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "NETWORK_INTERFACE", "value: ''", "value: '"+pkg.GetEnv("NETWORK_INTERFACE", "eth0")+"'")
 			Expect(err).To(BeNil(), "Failed to update the network interface")
@@ -89,6 +87,8 @@ var _ = Describe("BDD of pod-network-latency experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update the target container name")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "NETWORK_LATENCY", "value: 'nginx'", "value: '"+pkg.GetEnv("NETWORK_LATENCY", "60000")+"'")
 			Expect(err).To(BeNil(), "Failed to update the network latency value")
+			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "CONTAINER_RUNTIME", "value: 'docker'", "value: '"+pkg.GetEnv("CONTAINER_RUNTIME", "docker")+"'")
+			Expect(err).To(BeNil(), "Fail to update the network runtime")
 
 			//Creating ChaosEngine
 			By("Creating ChaosEngine")

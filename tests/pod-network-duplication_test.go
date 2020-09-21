@@ -19,14 +19,14 @@ import (
 	"k8s.io/klog"
 )
 
-func testPodNetworkCorruption(t *testing.T) {
+func TestPodNetworkDuplication(t *testing.T) {
 
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "BDD test")
 }
 
-//BDD Tests for pod-network-corruption experiment
-var _ = Describe("BDD of pod-network-corruption experiment", func() {
+//BDD Tests for pod-network-duplication experiment
+var _ = Describe("BDD of pod-network-duplication experiment", func() {
 
 	// BDD TEST CASE 1
 	Context("Check for Litmus components", func() {
@@ -34,8 +34,8 @@ var _ = Describe("BDD of pod-network-corruption experiment", func() {
 		It("Should check for creation of runner pod", func() {
 
 			var err error
-			var experimentName = "pod-network-corruption"
-			var engineName = "engine6"
+			var experimentName = "pod-network-duplication"
+			var engineName = "engine12"
 			//Prerequisite of the test
 			chaosTypes.Config, err = pkg.GetKubeConfig()
 			if err != nil {
@@ -54,14 +54,14 @@ var _ = Describe("BDD of pod-network-corruption experiment", func() {
 				fmt.Println(err)
 			}
 			//Installing RBAC for the experiment
-			err = pkg.InstallRbac(chaosTypes.PodNetworkCorruptionRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
+			err = pkg.InstallRbac(chaosTypes.PodNetworkLossRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
 
 			//Installing chaos engine for the experiment
 			//Fetching engine file
 			By("Fetching engine file for the experiment")
-			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodNetworkCorruptionEnginePath)
+			err = pkg.DownloadFile(experimentName+"-ce.yaml", chaosTypes.PodNetworkLossEnginePath)
 			Expect(err).To(BeNil(), "Fail to fetch engine file")
 
 			//Modify chaos engine spec
