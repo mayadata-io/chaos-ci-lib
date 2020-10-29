@@ -14,8 +14,9 @@ ENV GOPATH=$HOME/go
 ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
 #Installing helm
-RUN git clone https://github.com/helm/helm.git &&\
-    cd helm && make
+RUN wget https://get.helm.sh/helm-v3.4.0-linux-amd64.tar.gz && \ 
+    tar -zxvf helm-v3.4.0-linux-amd64.tar.gz && \
+    mv linux-amd64/helm /usr/local/bin/helm
 
 #Install kubectl
 ADD https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl /usr/local/bin/kubectl
@@ -23,6 +24,7 @@ RUN chmod +x /usr/local/bin/kubectl
 
 #copying binaries
 COPY build/_output ./
+COPY litmus/helm-install.sh ./ 
 
 #overwrite entrypoint with test binary
 ENTRYPOINT ["./all-experiments"]
