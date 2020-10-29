@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"flag"
 	"os"
 
 	"k8s.io/client-go/rest"
@@ -10,20 +9,11 @@ import (
 
 // GetKubeConfig setup the config for access cluster resource
 func GetKubeConfig() (*rest.Config, error) {
-	command := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	Kubeconfig := command.String("kubeconfig", os.Getenv("HOME")+"/.kube/config", "absolute path to the kubeconfig file")
-	flag.Parse()
-	// Use in-cluster config if kubeconfig path is specified
-	if *Kubeconfig == "" {
-		Config, err := rest.InClusterConfig()
-		if err != nil {
-			return Config, err
-		}
+	KubeConfig := os.Getenv("KUBECONFIG")
+	// Use in-cluster config if kubeconfig path is not specified
+	if KubeConfig == "" {
+		return rest.InClusterConfig()
 	}
-	Config, err := clientcmd.BuildConfigFromFlags("", *Kubeconfig)
-	if err != nil {
-		return Config, err
-	}
-	return Config, err
-}
 
+	return clientcmd.BuildConfigFromFlags("", KubeConfig)
+}

@@ -37,24 +37,18 @@ var _ = Describe("BDD of pod-network-loss experiment", func() {
 			var experimentName = "pod-network-loss"
 			var engineName = "engine9"
 			//Prerequisite of the test
-			chaosTypes.Config, err = pkg.GetKubeConfig()
-			if err != nil {
-				Expect(err).To(BeNil(), "Failed to get kubeconfig client")
-			}
-			chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
-			if err != nil {
-				Expect(err).To(BeNil(), "failed to get client")
-			}
-			chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
-			if err != nil {
-				Expect(err).To(BeNil(), "failed to get clientSet")
-			}
+			config, err := pkg.GetKubeConfig()
+			Expect(err).To(BeNil(), "Failed to get kubeconfig client")
+			client, err := kubernetes.NewForConfig(config)
+			Expect(err).To(BeNil(), "failed to get client")
+			clientSet, err := chaosClient.NewForConfig(config)
+			Expect(err).To(BeNil(), "failed to get clientSet")
 			err = v1alpha1.AddToScheme(scheme.Scheme)
 			if err != nil {
 				fmt.Println(err)
 			}
 			//Installing RBAC for the experiment
-			err = pkg.InstallRbac(chaosTypes.PodNetworkLossRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, chaosTypes.Client)
+			err = pkg.InstallRbac(chaosTypes.PodNetworkLossRbacPath, pkg.GetEnv("APP_NS", "default"), experimentName, client)
 			Expect(err).To(BeNil(), "Fail to create RBAC")
 			klog.Info("Rbac has been created successfully !!!")
 
@@ -100,7 +94,7 @@ var _ = Describe("BDD of pod-network-loss experiment", func() {
 			//Fetching the runner pod and Checking if it get in Running state or not
 			By("Wait for runner pod to come in running sate")
 			runnerNamespace := pkg.GetEnv("APP_NS", "default")
-			runnerPodStatus, err := pkg.RunnerPodStatus(runnerNamespace, engineName, chaosTypes.Client)
+			runnerPodStatus, err := pkg.RunnerPodStatus(runnerNamespace, engineName, client)
 			Expect(runnerPodStatus).NotTo(Equal("1"), "Runner pod failed to get in running state")
 			Expect(err).To(BeNil(), "Fail to get the runner pod")
 			klog.Info("Runner pod for is in Running state")
@@ -109,13 +103,13 @@ var _ = Describe("BDD of pod-network-loss experiment", func() {
 			//Also Printing the logs of the experiment
 			By("Waiting for job completion")
 			jobNamespace := pkg.GetEnv("APP_NS", "default")
-			jobPodLogs, err := pkg.JobLogs(experimentName, jobNamespace, engineName, chaosTypes.Client)
+			jobPodLogs, err := pkg.JobLogs(experimentName, jobNamespace, engineName, client)
 			Expect(jobPodLogs).To(Equal(0), "Fail to print the logs of the experiment")
 			Expect(err).To(BeNil(), "Fail to get the experiment job pod")
 
 			//Checking the chaosresult
 			By("Checking the chaosresult")
-			app, err := chaosTypes.ClientSet.ChaosResults(pkg.GetEnv("APP_NS", "default")).Get(engineName+"-"+experimentName, metav1.GetOptions{})
+			app, err := clientSet.ChaosResults(pkg.GetEnv("APP_NS", "default")).Get(engineName+"-"+experimentName, metav1.GetOptions{})
 			Expect(string(app.Status.ExperimentStatus.Verdict)).To(Equal("Pass"), "Verdict is not pass chaosresult")
 			Expect(err).To(BeNil(), "Fail to get chaosresult")
 		})

@@ -6,14 +6,10 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/litmuschaos/chaos-operator/pkg/apis/litmuschaos/v1alpha1"
-	chaosClient "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 	"github.com/mayadata-io/chaos-ci-lib/pkg"
 	chaosTypes "github.com/mayadata-io/chaos-ci-lib/types"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"k8s.io/client-go/kubernetes"
-	scheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/klog"
 )
@@ -35,23 +31,6 @@ var _ = Describe("BDD of Litmus cleanup", func() {
 			var err error
 			var out bytes.Buffer
 			var stderr bytes.Buffer
-			//Prerequisite of the test
-			chaosTypes.Config, err = pkg.GetKubeConfig()
-			if err != nil {
-				Expect(err).To(BeNil(), "Failed to get kubeconfig client")
-			}
-			chaosTypes.Client, err = kubernetes.NewForConfig(chaosTypes.Config)
-			if err != nil {
-				Expect(err).To(BeNil(), "failed to get client")
-			}
-			chaosTypes.ClientSet, err = chaosClient.NewForConfig(chaosTypes.Config)
-			if err != nil {
-				Expect(err).To(BeNil(), "failed to get clientSet")
-			}
-			err = v1alpha1.AddToScheme(scheme.Scheme)
-			if err != nil {
-				fmt.Println(err)
-			}
 			//Deleting all chaosengines
 			By("Deleting all chaosengine")
 			err = exec.Command("kubectl", "delete", "chaosengine", "-n", pkg.GetEnv("APP_NS", "default"), "--all").Run()
