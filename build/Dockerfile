@@ -25,6 +25,7 @@ RUN chmod +x /usr/local/bin/kubectl
 #copying binaries
 COPY build/_output ./
 COPY litmus/helm-install.sh ./ 
+COPY build/experiment_entrypoint.sh ./
 
 #overwrite entrypoint with test binary
 ENTRYPOINT ["./all-experiments"]
