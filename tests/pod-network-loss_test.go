@@ -79,7 +79,7 @@ var _ = Describe("BDD of pod-network-loss experiment", func() {
 			Expect(err).To(BeNil(), "Failed to update the network interface")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "TARGET_CONTAINER", "value: 'nginx'", "value: '"+pkg.GetEnv("TARGET_CONTAINER", "nginx")+"'")
 			Expect(err).To(BeNil(), "Failed to update the target container name")
-			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "NETWORK_PACKET_LOSS_PERCENTAGE", "value: 'nginx'", "value: '"+pkg.GetEnv("NETWORKNETWORK_PACKET_LOSS_PERCENTAGE_LATENCY", "100")+"'")
+			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "NETWORK_PACKET_LOSS_PERCENTAGE", "value: 'nginx'", "value: '"+pkg.GetEnv("NETWORK_PACKET_LOSS_PERCENTAGE", "100")+"'")
 			Expect(err).To(BeNil(), "Failed to update the network packet loss percentage")
 			err = pkg.EditKeyValue(experimentName+"-ce.yaml", "CONTAINER_RUNTIME", "value: 'docker'", "value: '"+pkg.GetEnv("CONTAINER_RUNTIME", "docker")+"'")
 			Expect(err).To(BeNil(), "Fail to update the network runtime")
