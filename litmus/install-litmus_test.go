@@ -80,7 +80,7 @@ var _ = Describe("BDD of Litmus installation", func() {
 			fmt.Println("Result: " + out.String())
 
 			//Checking the status of operator
-			operator, _ := chaosTypes.Client.AppsV1().Deployments(pkg.GetEnv("APP_NS", "default")).Get("chaos-operator-ce", metav1.GetOptions{})
+			operator, _ := chaosTypes.Client.AppsV1().Deployments(pkg.GetEnv("APP_NS", "litmus")).Get("chaos-operator-ce", metav1.GetOptions{})
 			count := 0
 			for operator.Status.UnavailableReplicas != 0 {
 				if count < 50 {
